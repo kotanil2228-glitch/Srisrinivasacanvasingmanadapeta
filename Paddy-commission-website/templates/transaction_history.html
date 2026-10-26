@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}My Transaction History - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-styled">
+        <div>
+            <h2 class="card-title">📜 My Paddy Transaction History</h2>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                View, search, and track all your paddy transactions and payment statuses with Sri Srinivasa Canvasing, Mandapeta, East Godavari.
+            </div>
+        </div>
+        <a href="{{ url_for('new_transaction') }}" class="btn btn-primary btn-sm">
+            + New Transaction
+        </a>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <form method="GET" action="{{ url_for('farmer_transactions') }}" style="background: rgba(248, 250, 252, 0.9); border: 1px solid #E2E8F0; padding: 18px; border-radius: var(--border-radius-md); margin-bottom: 24px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+            <div>
+                <label class="form-label" style="font-size: 0.82rem;">Search Transaction ID</label>
+                <input type="text" name="search" class="form-control" placeholder="e.g. SSC-2026..." value="{{ search_q or '' }}">
+            </div>
+
+            <div>
+                <label class="form-label" style="font-size: 0.82rem;">Approval Status</label>
+                <select name="status" class="form-select">
+                    <option value="ALL" {% if status_filter == 'ALL' %}selected{% endif %}>All Statuses</option>
+                    <option value="PENDING" {% if status_filter == 'PENDING' %}selected{% endif %}>Pending</option>
+                    <option value="APPROVED" {% if status_filter == 'APPROVED' %}selected{% endif %}>Approved</option>
+                    <option value="REJECTED" {% if status_filter == 'REJECTED' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" style="font-size: 0.82rem;">Payment Status</label>
+                <select name="payment_status" class="form-select">
+                    <option value="ALL" {% if payment_filter == 'ALL' %}selected{% endif %}>All Payments</option>
+                    <option value="COMPLETED" {% if payment_filter == 'COMPLETED' %}selected{% endif %}>Completed ✅</option>
+                    <option value="PENDING" {% if payment_filter == 'PENDING' %}selected{% endif %}>Pending ⏳</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="form-label" style="font-size: 0.82rem;">Filter by Date</label>
+                <input type="date" name="date" class="form-control" value="{{ date_filter or '' }}">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-top: 14px; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary btn-sm">
+                🔍 Apply Filters
+            </button>
+            <a href="{{ url_for('farmer_transactions') }}" class="btn btn-outline btn-sm">
+                Reset
+            </a>
+        </div>
+    </form>
+
+    <!-- Transactions List -->
+    {% if transactions %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Transaction ID</th>
+                        <th>Date & Time</th>
+                        <th>Rice Mill</th>
+                        <th>Paddy Type</th>
+                        <th>Bags</th>
+                        <th>Vehicle No.</th>
+                        <th>Weight (kg)</th>
+                        <th>Approval Status</th>
+                        <th>Payment Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('farmer_transaction_details', tx_id=tx['transaction_id']) }}" style="font-weight: 700; color: var(--primary-blue);">
+                                    {{ tx['transaction_id'] }}
+                                </a>
+                            </td>
+                            <td>{{ tx['transaction_timestamp'][:16] }}</td>
+                            <td>
+                                <strong>{{ tx['rice_mill_name_snapshot'] or tx['current_mill_name'] or 'Not recorded' }}</strong>
+                            </td>
+                            <td>{{ tx['paddy_type'] }}</td>
+                            <td>{{ tx['number_of_bags'] }} bags</td>
+                            <td>{{ tx['vehicle_number'] }}</td>
+                            <td>{{ '{:,.1f}'.format(tx['vehicle_weight_kg']) }} kg</td>
+                            <td>
+                                {% if tx['status'] == 'APPROVED' %}
+                                    <span class="badge badge-approved">Approved</span>
+                                {% elif tx['status'] == 'REJECTED' %}
+                                    <span class="badge badge-rejected" title="Reason: {{ tx['rejection_reason'] or 'N/A' }}">Rejected</span>
+                                    {% if tx['rejection_reason'] %}
+                                        <div style="font-size: 0.75rem; color: #DC2626; margin-top: 2px;">
+                                            {{ tx['rejection_reason'] }}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if tx['payment_status'] == 'COMPLETED' %}
+                                    <span class="badge badge-approved" style="background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; font-weight: 700;">
+                                        Completed ✅
+                                    </span>
+                                {% else %}
+                                    <span class="badge badge-pending" style="background: #FEF3C7; color: #92400E;">
+                                        Pending ⏳
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div style="display: flex; gap: 6px;">
+                                    <a href="{{ url_for('farmer_transaction_details', tx_id=tx['transaction_id']) }}" class="btn btn-outline btn-sm">
+                                        Details
+                                    </a>
+                                    {% if tx['status'] == 'APPROVED' %}
+                                        <a href="{{ url_for('view_receipt', tx_id=tx['transaction_id']) }}" class="btn btn-primary btn-sm">
+                                            Receipt
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px 20px; background: #FFFFFF; border-radius: var(--border-radius-md); border: 1px dashed #CBD5E1;">
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 12px;">
+                No transactions found matching your current filter criteria.
+            </p>
+            <a href="{{ url_for('farmer_transactions') }}" class="btn btn-outline btn-sm">
+                Clear Filters
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

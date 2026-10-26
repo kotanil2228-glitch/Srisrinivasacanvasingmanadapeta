@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Registered Farmers Directory - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-styled">
+        <div>
+            <h2 class="card-title">👨‍🌾 Registered Farmers Directory</h2>
+            <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+                Directory of farmers affiliated with Sri Srinivasa Canvasing, Mandapeta.
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-sm">
+                &larr; Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if farmers %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Farmer ID</th>
+                        <th>Farmer Name</th>
+                        <th>Mobile Number</th>
+                        <th>Aadhaar (Masked)</th>
+                        <th>Village</th>
+                        <th>Registered On</th>
+                        <th>Total Lots</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in farmers %}
+                        <tr>
+                            <td>#{{ f['id'] }}</td>
+                            <td><strong style="color: var(--primary-blue);">{{ f['name'] }}</strong></td>
+                            <td>{{ f['mobile'] }}</td>
+                            <td><code>{{ mask_aadhaar(f['aadhaar']) }}</code></td>
+                            <td>{{ f['village'] }}</td>
+                            <td>{{ f['created_at'][:10] if f['created_at'] else 'N/A' }}</td>
+                            <td>
+                                <span class="badge badge-active">{{ f['tx_count'] or 0 }} lots</span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; background: #FFFFFF; border-radius: var(--border-radius-md); border: 1px dashed #CBD5E1;">
+            <p style="color: var(--text-muted); font-size: 1.05rem;">
+                No farmers registered yet.
+            </p>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted); padding: 12px; background: #F8FAFC; border-radius: var(--border-radius-sm);">
+        🔒 <strong>Compliance & Privacy Notice:</strong> In accordance with UIDAI regulations, Aadhaar numbers are masked in all directory views and administrative exports.
+    </div>
+</div>
+{% endblock %}

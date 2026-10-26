@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Registration - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 620px; margin: 0 auto;">
+    <div class="content-card">
+        <div class="card-header-styled" style="text-align: center; display: block;">
+            <h2 class="card-title" style="margin-bottom: 4px;">Farmer Registration</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Register your farm account with SRI SRINIVASA CANVASING, Mandapeta.
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('register') }}" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label class="form-label" for="name">1. Farmer Full Name *</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Satyanarayana Varma" value="{{ name or '' }}" required>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="mobile">2. Mobile Number (10 digits) *</label>
+                    <input type="tel" id="mobile" name="mobile" class="form-control" placeholder="e.g. 9848012345" maxlength="10" value="{{ mobile or '' }}" required>
+                    <div class="form-text-muted">Used for login & SMS alerts. Must start with 6-9.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="aadhaar">3. Aadhaar Number (12 digits) *</label>
+                    <input type="text" id="aadhaar" name="aadhaar" class="form-control" placeholder="12-digit UID" maxlength="14" value="{{ aadhaar or '' }}" required>
+                    <div class="form-text-muted">🔒 Kept strictly confidential; only masked on receipts.</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="village">4. Village / Town *</label>
+                <input type="text" id="village" name="village" class="form-control" placeholder="e.g. Alamuru, Mandapeta Mandal" value="{{ village or '' }}" required>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="password">5. Password (min 6 characters) *</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter secure password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">6. Confirm Password *</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="Re-enter password" required>
+                </div>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; font-size: 1.05rem;">
+                    ✅ Register Farmer Account
+                </button>
+            </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid #E2E8F0; font-size: 0.95rem;">
+            <span>Already have a registered account?</span>
+            <a href="{{ url_for('login') }}" style="color: var(--gold-hover); font-weight: 700; margin-left: 6px;">
+                Go to Farmer Login &rarr;
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - SRI SRINIVASA CANVASING | Mandapeta{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="hero-box">
+        <h2 class="hero-title">{{ business_name }}</h2>
+        <div style="color: var(--gold-hover); font-weight: 700; font-size: 1.1rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">
+            Trusted Paddy Canvasing & Commission Agents Since Generations
+        </div>
+        <p class="hero-subtitle">
+            Operating from the premier paddy trading hub of <strong>Mandapeta, East Godavari District, Andhra Pradesh</strong>.
+            We provide a transparent, prompt, and reliable bridge connecting dedicated paddy farmers with modern rice mills, ensuring fair weighing, competitive market rates, instantaneous digital transaction records, and prompt payment settlement.
+        </p>
+
+        <div class="hero-actions">
+            {% if session.get('role') == 'farmer' %}
+                <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-primary" style="font-size: 1.05rem;">
+                    🌾 Open Farmer Dashboard
+                </a>
+                <a href="{{ url_for('new_transaction') }}" class="btn btn-secondary" style="font-size: 1.05rem;">
+                    + New Paddy Booking
+                </a>
+            {% elif session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary" style="font-size: 1.05rem;">
+                    🛡️ Open Administrator Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary" style="font-size: 1.05rem; padding: 12px 28px;">
+                    👨‍🌾 Farmer Login
+                </a>
+                <a href="{{ url_for('register') }}" class="btn btn-secondary" style="font-size: 1.05rem; padding: 12px 28px;">
+                    📝 Farmer Registration
+                </a>
+                <a href="{{ url_for('admin_login') }}" class="btn btn-outline" style="font-size: 1.05rem; padding: 12px 28px;">
+                    🔐 Administrator Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Feature Highlights Grid -->
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>🌾 Direct Mill Linkage</h3>
+            <p>
+                Seamlessly route your paddy lots to active, verified modern rice mills across Mandapeta, Alamuru, Dwarapudi, and the East Godavari delta belt with real-time selection.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>⚖️ Fair Weighing & Tracking</h3>
+            <p>
+                Record vehicle numbers, gross vehicle weights in kilograms, bag counts, and driver contact info. Complete traceability from farm gate to mill hopper.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <h3>💰 Transparent Payment Tracking</h3>
+            <p>
+                Track administrative lot approval and payment completion status live from your farmer dashboard, complete with official digital receipts and QR verification.
+            </p>
+        </div>
+    </div>
+
+    <!-- Business Contact & Location Information -->
+    <div style="margin-top: 40px; padding: 24px; background: rgba(248, 250, 252, 0.9); border-radius: var(--border-radius-md); border-left: 4px solid var(--gold-primary);">
+        <h3 style="color: var(--primary-blue); margin-bottom: 8px;">📍 Head Office & Canvasing Center</h3>
+        <p style="color: var(--text-dark); font-size: 0.95rem;">
+            <strong>SRI SRINIVASA CANVASING</strong><br>
+            Main Road, Mandapeta, East Godavari District,<br>
+            Andhra Pradesh, India — PIN: 533308.<br>
+            <em>Specialists in BPT 5204 (Samba Mahsuri), MTU 1010, MTU 1061, Swarna, and Super Fine Paddy Varieties.</em>
+        </p>
+    </div>
+</div>
+{% endblock %}

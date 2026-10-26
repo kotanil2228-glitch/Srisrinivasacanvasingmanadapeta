@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Dashboard - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <!-- Header Banner -->
+    <div class="card-header-styled">
+        <div>
+            <h2 class="card-title">👨‍🌾 Farmer Dashboard</h2>
+            <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+                Welcome, <strong>{{ farmer['name'] }}</strong> | Village: <strong>{{ farmer['village'] }}</strong> | Mobile: <strong>{{ mask_mobile(farmer['mobile']) }}</strong> | Mandapeta, East Godavari
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{{ url_for('new_transaction') }}" class="btn btn-primary">
+                + New Paddy Transaction
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm" style="color: #DC2626; border-color: #DC2626;">
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Metrics Cards -->
+    <div class="stats-grid">
+        <a href="{{ url_for('farmer_transactions', status='ALL') }}" class="stat-card stat-gold" style="text-decoration: none;">
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value">{{ total_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--gold-hover);">View all records &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('farmer_transactions', status='PENDING') }}" class="stat-card stat-pending" style="text-decoration: none;">
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-value" style="color: var(--status-pending);">{{ pending_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--status-pending);">Awaiting admin review &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('farmer_transactions', status='APPROVED') }}" class="stat-card stat-approved" style="text-decoration: none;">
+            <div class="stat-label">Approved Lots</div>
+            <div class="stat-value" style="color: var(--status-approved);">{{ approved_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--status-approved);">Receipts available &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('farmer_transactions', payment_status='COMPLETED') }}" class="stat-card" style="text-decoration: none; border-left-color: #22C55E;">
+            <div class="stat-label">Payments Completed</div>
+            <div class="stat-value" style="color: #15803D;">{{ paid_tx }}</div>
+            <div style="font-size: 0.82rem; color: #15803D;">Settled payments &rarr;</div>
+        </a>
+    </div>
+
+    <!-- Navigation Hub (Options 1-8) -->
+    <div style="background: rgba(248, 250, 252, 0.95); border: 1px solid #E2E8F0; border-radius: var(--border-radius-md); padding: 20px; margin-bottom: 30px;">
+        <h3 style="color: var(--primary-blue); font-size: 1.15rem; margin-bottom: 14px; font-weight: 700;">
+            ⚡ Quick Navigation & Actions
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <a href="{{ url_for('new_transaction') }}" class="btn btn-secondary btn-sm" style="justify-content: flex-start;">
+                1. 🌾 New Paddy Transaction
+            </a>
+            <a href="{{ url_for('farmer_transactions') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                2. 📜 My Transaction History
+            </a>
+            <a href="{{ url_for('farmer_transactions', status='PENDING') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                3. ⏳ Pending Transactions ({{ pending_tx }})
+            </a>
+            <a href="{{ url_for('farmer_transactions', status='APPROVED') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                4. ✅ Approved Transactions ({{ approved_tx }})
+            </a>
+            <a href="{{ url_for('farmer_transactions', payment_status='COMPLETED') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start; color: #15803D; border-color: #86EFAC;">
+                5. 💰 Completed Payments ({{ paid_tx }})
+            </a>
+            <a href="{{ url_for('farmer_transactions', status='APPROVED') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                6. 🧾 View Receipts
+            </a>
+            <a href="#farmer-profile" class="btn btn-outline btn-sm" style="justify-content: flex-start;" onclick="document.getElementById('farmer-profile').scrollIntoView({behavior: 'smooth'}); return false;">
+                7. 👤 My Profile Details
+            </a>
+            <a href="{{ url_for('logout') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start; color: #DC2626; border-color: #FCA5A5;">
+                8. 🚪 Secure Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Table -->
+    <div style="margin-top: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="color: var(--primary-blue); font-size: 1.25rem;">Recent Paddy Transactions</h3>
+            <a href="{{ url_for('farmer_transactions') }}" style="font-size: 0.9rem; color: var(--gold-hover); font-weight: 600;">
+                View All History &rarr;
+            </a>
+        </div>
+
+        {% if recent_transactions %}
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Date</th>
+                            <th>Rice Mill</th>
+                            <th>Variety</th>
+                            <th>Bags</th>
+                            <th>Vehicle No.</th>
+                            <th>Approval Status</th>
+                            <th>Payment Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in recent_transactions %}
+                            <tr>
+                                <td><strong>{{ tx['transaction_id'] }}</strong></td>
+                                <td>{{ tx['transaction_timestamp'][:16] }}</td>
+                                <td>
+                                    {{ tx['rice_mill_name_snapshot'] or tx['current_mill_name'] or 'Not recorded' }}
+                                </td>
+                                <td>{{ tx['paddy_type'] }}</td>
+                                <td>{{ tx['number_of_bags'] }} bags</td>
+                                <td>{{ tx['vehicle_number'] }}</td>
+                                <td>
+                                    {% if tx['status'] == 'APPROVED' %}
+                                        <span class="badge badge-approved">Approved</span>
+                                    {% elif tx['status'] == 'REJECTED' %}
+                                        <span class="badge badge-rejected">Rejected</span>
+                                    {% else %}
+                                        <span class="badge badge-pending">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if tx['payment_status'] == 'COMPLETED' %}
+                                        <span class="badge badge-approved" style="background: #D1FAE5; color: #065F46; border: 1px solid #6EE7B7; font-weight: 700;">
+                                            Completed ✅
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-pending" style="background: #FEF3C7; color: #92400E;">
+                                            Pending ⏳
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div style="display: flex; gap: 4px;">
+                                        <a href="{{ url_for('farmer_transaction_details', tx_id=tx['transaction_id']) }}" class="btn btn-outline btn-sm">
+                                            Details
+                                        </a>
+                                        {% if tx['status'] == 'APPROVED' %}
+                                            <a href="{{ url_for('view_receipt', tx_id=tx['transaction_id']) }}" class="btn btn-primary btn-sm">
+                                                Receipt
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px 20px; background: #FFFFFF; border-radius: var(--border-radius-md); border: 1px dashed #CBD5E1;">
+                <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 16px;">
+                    You have not submitted any paddy transactions yet.
+                </p>
+                <a href="{{ url_for('new_transaction') }}" class="btn btn-primary">
+                    + Submit Your First Paddy Lot
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Farmer Profile Card (Item 7) -->
+    <div id="farmer-profile" style="margin-top: 40px; padding: 24px; background: #FFFFFF; border-radius: var(--border-radius-md); border-left: 4px solid var(--gold-primary); box-shadow: 0 2px 10px rgba(0,0,0,0.04);">
+        <h3 style="color: var(--primary-blue); margin-bottom: 14px;">👤 Farmer Account Profile</h3>
+        <div class="form-grid-2">
+            <div>
+                <p><strong>Farmer Name:</strong> {{ farmer['name'] }}</p>
+                <p style="margin-top: 8px;"><strong>Registered Mobile:</strong> {{ mask_mobile(farmer['mobile']) }}</p>
+                <p style="margin-top: 8px;"><strong>Village:</strong> {{ farmer['village'] }}, East Godavari District</p>
+            </div>
+            <div>
+                <p><strong>Aadhaar Number:</strong> {{ mask_aadhaar(farmer['aadhaar']) }}</p>
+                <p style="margin-top: 8px;"><strong>Member Since:</strong> {{ farmer['created_at'] or 'Recent' }}</p>
+                <p style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted);">
+                    🔒 For security, your complete Aadhaar number is never displayed publicly or on driver copies.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

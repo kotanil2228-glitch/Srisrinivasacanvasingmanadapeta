@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ mode }} Rice Mill - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="content-card">
+        <div class="card-header-styled">
+            <div>
+                <h2 class="card-title">{{ mode }} Rice Mill</h2>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                    Authorized partner mill for Sri Srinivasa Canvasing, Mandapeta, East Godavari.
+                </div>
+            </div>
+            <a href="{{ url_for('manage_rice_mills') }}" class="btn btn-outline btn-sm">
+                &larr; Back to Mills List
+            </a>
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label class="form-label" for="mill_name">Rice Mill Name *</label>
+                <input type="text" id="mill_name" name="mill_name" class="form-control" placeholder="e.g. Sri Satyanarayana Modern Rice Mill" value="{{ mill_name or '' }}" required autofocus>
+                <div class="form-text-muted">Must be a unique name in Mandapeta & surrounding region.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="location">Location / Address (Optional)</label>
+                <input type="text" id="location" name="location" class="form-control" placeholder="e.g. Alamuru Road, Mandapeta, East Godavari Dist." value="{{ location or '' }}">
+                <div class="form-text-muted">Physical mill address or industrial bypass location.</div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="submit" class="btn btn-primary" style="flex: 2; padding: 12px;">
+                    💾 Save Rice Mill
+                </button>
+                <a href="{{ url_for('manage_rice_mills') }}" class="btn btn-outline" style="flex: 1;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

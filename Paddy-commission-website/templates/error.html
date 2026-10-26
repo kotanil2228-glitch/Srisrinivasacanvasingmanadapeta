@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ code or 'Notice' }} - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 550px; margin: 40px auto; text-align: center;">
+    <div class="content-card">
+        <div style="font-size: 3.5rem; margin-bottom: 12px;">⚠️</div>
+        <h2 class="card-title" style="color: var(--primary-blue); margin-bottom: 8px;">
+            {% if code == 403 %}Access Forbidden
+            {% elif code == 404 %}Record or Page Not Found
+            {% elif code == 500 %}Server Error
+            {% else %}System Notice{% endif %}
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 24px;">
+            {{ message or "An error occurred while processing your request." }}
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 12px;">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">
+                Return to Home
+            </a>
+            <a href="javascript:history.back()" class="btn btn-outline">
+                &larr; Go Back
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

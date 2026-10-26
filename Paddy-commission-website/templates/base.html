@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SRI SRINIVASA CANVASING - Mandapeta{% endblock %}</title>
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/print.css') }}" media="print">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Header & Top Branding -->
+    <header class="header-top">
+        <div class="brand-wrapper">
+            <div class="brand-icon-text">
+                <h1 class="brand-title">{{ business_name }}</h1>
+            </div>
+            <div class="brand-subtitle">Paddy Canvasing & Commission Agents</div>
+            <div class="brand-location-badge">📍 {{ business_location }}</div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="nav-link" style="font-weight: 700; color: var(--gold-primary);">
+                🌾 Sri Srinivasa Canvasing
+            </a>
+
+            <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}" class="nav-link">Home</a></li>
+
+                {% if session.get('role') == 'farmer' %}
+                    <li><a href="{{ url_for('farmer_dashboard') }}" class="nav-link">Dashboard</a></li>
+                    <li><a href="{{ url_for('new_transaction') }}" class="nav-link">+ New Transaction</a></li>
+                    <li><a href="{{ url_for('farmer_transactions') }}" class="nav-link">My History</a></li>
+                    <li class="nav-user-badge">
+                        <span>👨‍🌾 {{ session.get('user_name', 'Farmer') }}</span>
+                    </li>
+                    <li><a href="{{ url_for('logout') }}" class="nav-link" style="color: #F87171;">Logout</a></li>
+
+                {% elif session.get('role') == 'admin' %}
+                    <li><a href="{{ url_for('admin_dashboard') }}" class="nav-link">Admin Dashboard</a></li>
+                    <li><a href="{{ url_for('manage_rice_mills') }}" class="nav-link">Rice Mills</a></li>
+                    <li><a href="{{ url_for('admin_farmers') }}" class="nav-link">Farmers</a></li>
+                    <li><a href="{{ url_for('admin_transactions') }}" class="nav-link">Transactions</a></li>
+                    <li class="nav-user-badge">
+                        <span>🛡️ Admin: {{ session.get('username', 'Admin') }}</span>
+                    </li>
+                    <li><a href="{{ url_for('admin_logout') }}" class="nav-link" style="color: #F87171;">Logout</a></li>
+
+                {% else %}
+                    <li><a href="{{ url_for('login') }}" class="nav-link">Farmer Login</a></li>
+                    <li><a href="{{ url_for('register') }}" class="nav-link">Farmer Register</a></li>
+                    <li><a href="{{ url_for('admin_login') }}" class="nav-link" style="color: var(--gold-light);">Admin Portal</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Flash Notifications -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <span>{{ message }}</span>
+                        <button type="button" class="alert-close" aria-label="Close">&times;</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Page Content Block -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>
+            &copy; {{ current_year }} <span class="footer-brand">{{ business_name }}</span>, {{ business_location }}.
+            All rights reserved.
+        </p>
+        <p style="font-size: 0.8rem; margin-top: 4px; color: #64748B;">
+            Mandapeta Paddy Canvasing & Commission Operations Platform
+        </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

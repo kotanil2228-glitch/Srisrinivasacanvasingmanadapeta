@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Farmer Login - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 480px; margin: 20px auto;">
+    <div class="content-card">
+        <div class="card-header-styled" style="text-align: center; display: block;">
+            <h2 class="card-title" style="margin-bottom: 4px;">Farmer Login</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Access your paddy transactions & official receipts.
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label class="form-label" for="mobile">Registered Mobile Number</label>
+                <input type="tel" id="mobile" name="mobile" class="form-control" placeholder="10-digit mobile number" maxlength="10" value="{{ mobile or '' }}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+            </div>
+
+            <div style="margin-top: 14px;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; font-size: 1.05rem;">
+                    🌾 Sign In to Dashboard
+                </button>
+            </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px; padding-top: 18px; border-top: 1px solid #E2E8F0; font-size: 0.95rem;">
+            <div>
+                <span>New to Sri Srinivasa Canvasing?</span>
+                <a href="{{ url_for('register') }}" style="color: var(--gold-hover); font-weight: 700; margin-left: 6px;">
+                    Register here &rarr;
+                </a>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.85rem;">
+                <a href="{{ url_for('admin_login') }}" style="color: var(--text-muted);">
+                    🛡️ Administrator Portal Login &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

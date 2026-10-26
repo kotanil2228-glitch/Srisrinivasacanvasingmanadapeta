@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Dashboard - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-styled">
+        <div>
+            <h2 class="card-title">🛡️ Administrator Management Console</h2>
+            <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+                Sri Srinivasa Canvasing, Mandapeta | Logged in as: <strong>{{ session.get('username') }}</strong>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{{ url_for('manage_rice_mills') }}" class="btn btn-secondary btn-sm">
+                ⚙️ Manage Rice Mills
+            </a>
+            <a href="{{ url_for('admin_transactions') }}" class="btn btn-primary btn-sm">
+                📋 All Transactions
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline btn-sm" style="color: #DC2626; border-color: #DC2626;">
+                Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Metrics Cards -->
+    <div class="stats-grid">
+        <a href="{{ url_for('admin_farmers') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-label">Total Farmers</div>
+            <div class="stat-value">{{ total_farmers }}</div>
+            <div style="font-size: 0.82rem; color: var(--primary-blue);">View registered directory &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('manage_rice_mills') }}" class="stat-card stat-gold" style="text-decoration: none;">
+            <div class="stat-label">Rice Mills</div>
+            <div class="stat-value">{{ total_mills }}</div>
+            <div style="font-size: 0.82rem; color: var(--gold-hover);">Active: <strong>{{ active_mills }}</strong> &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('admin_transactions') }}" class="stat-card" style="text-decoration: none;">
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-value">{{ total_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--text-muted);">View all records &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('admin_transactions', status='PENDING') }}" class="stat-card stat-pending" style="text-decoration: none;">
+            <div class="stat-label">Pending Approval</div>
+            <div class="stat-value" style="color: var(--status-pending);">{{ pending_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--status-pending);">Needs decision &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('admin_transactions', status='APPROVED') }}" class="stat-card stat-approved" style="text-decoration: none;">
+            <div class="stat-label">Approved</div>
+            <div class="stat-value" style="color: var(--status-approved);">{{ approved_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--status-approved);">Official receipts active &rarr;</div>
+        </a>
+
+        <a href="{{ url_for('admin_transactions', status='REJECTED') }}" class="stat-card stat-rejected" style="text-decoration: none;">
+            <div class="stat-label">Rejected</div>
+            <div class="stat-value" style="color: var(--status-rejected);">{{ rejected_tx }}</div>
+            <div style="font-size: 0.82rem; color: var(--status-rejected);">Logged rejection notes &rarr;</div>
+        </a>
+    </div>
+
+    <!-- Administrative Quick Links (Options 1-9) -->
+    <div style="background: rgba(248, 250, 252, 0.95); border: 1px solid #E2E8F0; border-radius: var(--border-radius-md); padding: 20px; margin-bottom: 30px;">
+        <h3 style="color: var(--primary-blue); font-size: 1.15rem; margin-bottom: 14px; font-weight: 700;">
+            ⚙️ Administrative Control Options
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <a href="{{ url_for('manage_rice_mills') }}" class="btn btn-secondary btn-sm" style="justify-content: flex-start;">
+                1. 🏭 Manage Rice Mills ({{ active_mills }}/{{ total_mills }})
+            </a>
+            <a href="{{ url_for('admin_farmers') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                2. 👨‍🌾 View All Farmers ({{ total_farmers }})
+            </a>
+            <a href="{{ url_for('admin_transactions') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                3. 📋 View All Transactions ({{ total_tx }})
+            </a>
+            <a href="{{ url_for('admin_transactions', status='PENDING') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start; color: #B45309;">
+                4. ⏳ Pending Queue ({{ pending_tx }})
+            </a>
+            <a href="{{ url_for('admin_transactions', status='APPROVED') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start; color: #15803D;">
+                5. ✅ Approved Records ({{ approved_tx }})
+            </a>
+            <a href="{{ url_for('admin_transactions', status='REJECTED') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start; color: #DC2626;">
+                6. ❌ Rejected Records ({{ rejected_tx }})
+            </a>
+            <a href="{{ url_for('admin_transactions') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                7. 📜 Transaction History Log
+            </a>
+            <a href="{{ url_for('admin_transactions') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start;">
+                8. 🔍 Search & Filter Engine
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline btn-sm" style="justify-content: flex-start; color: #DC2626; border-color: #FCA5A5;">
+                9. 🚪 Administrator Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Pending Approvals Queue -->
+    <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h3 style="color: var(--primary-blue); font-size: 1.25rem;">
+                ⏳ Pending Approvals Queue ({{ pending_tx }})
+            </h3>
+            <a href="{{ url_for('admin_transactions', status='PENDING') }}" style="font-size: 0.9rem; color: var(--gold-hover); font-weight: 600;">
+                View All Pending &rarr;
+            </a>
+        </div>
+
+        {% if pending_transactions %}
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Transaction ID</th>
+                            <th>Date</th>
+                            <th>Farmer</th>
+                            <th>Village</th>
+                            <th>Rice Mill</th>
+                            <th>Variety</th>
+                            <th>Bags</th>
+                            <th>Vehicle No.</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in pending_transactions %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('admin_transaction_details', tx_id=tx['transaction_id']) }}" style="font-weight: 700; color: var(--primary-blue);">
+                                        {{ tx['transaction_id'] }}
+                                    </a>
+                                </td>
+                                <td>{{ tx['transaction_timestamp'][:16] }}</td>
+                                <td><strong>{{ tx['farmer_name'] }}</strong></td>
+                                <td>{{ tx['farmer_village'] }}</td>
+                                <td>{{ tx['rice_mill_name_snapshot'] or tx['current_mill_name'] or 'Not assigned' }}</td>
+                                <td>{{ tx['paddy_type'] }}</td>
+                                <td>{{ tx['number_of_bags'] }} bags</td>
+                                <td>{{ tx['vehicle_number'] }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin_transaction_details', tx_id=tx['transaction_id']) }}" class="btn btn-primary btn-sm">
+                                        Review & Decide &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px; background: #FFFFFF; border-radius: var(--border-radius-md); border: 1px dashed #CBD5E1;">
+                <p style="color: var(--text-muted); font-size: 1rem;">
+                    ✅ No pending transactions requiring review at this time.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

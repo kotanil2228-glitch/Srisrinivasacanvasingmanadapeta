@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Review Transaction {{ tx['transaction_id'] }} - Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 880px; margin: 0 auto;">
+    <div class="content-card">
+        <div class="card-header-styled">
+            <div>
+                <h2 class="card-title">🛡️ Transaction Audit & Settlement</h2>
+                <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+                    Transaction ID: <strong style="color: var(--primary-blue);">{{ tx['transaction_id'] }}</strong> | Mandapeta, East Godavari
+                </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <a href="{{ url_for('admin_transactions') }}" class="btn btn-outline btn-sm">
+                    &larr; All Transactions
+                </a>
+                {% if tx['status'] == 'APPROVED' %}
+                    <a href="{{ url_for('view_receipt', tx_id=tx['transaction_id']) }}" class="btn btn-primary btn-sm">
+                        🧾 Open Official Receipt
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Section 1: Approval Status Box -->
+        <div style="padding: 20px; border-radius: var(--border-radius-sm); margin-bottom: 24px;
+            {% if tx['status'] == 'APPROVED' %} background: #ECFDF5; border: 1.5px solid #86EFAC;
+            {% elif tx['status'] == 'REJECTED' %} background: #FEF2F2; border: 1.5px solid #FCA5A5;
+            {% else %} background: #FFFBEB; border: 1.5px solid var(--gold-border); {% endif %}">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">
+                        Lot Verification Status
+                    </span>
+                    <h3 style="margin: 2px 0 0;
+                        {% if tx['status'] == 'APPROVED' %} color: #065F46;
+                        {% elif tx['status'] == 'REJECTED' %} color: #991B1B;
+                        {% else %} color: #92400E; {% endif %}">
+                        {{ tx['status'] }}
+                    </h3>
+                </div>
+
+                {% if tx['status'] == 'PENDING' %}
+                    <div style="color: #92400E; font-size: 0.9rem;">
+                        ⚡ Action Required: Review details below and record your administrative approval/rejection.
+                    </div>
+                {% else %}
+                    <div style="text-align: right; font-size: 0.88rem; color: var(--text-muted);">
+                        Decided By: <strong>{{ tx['decider_admin_username'] or 'Administrator' }}</strong><br>
+                        Timestamp: <strong>{{ tx['decision_timestamp'] }}</strong>
+                        {% if tx['rejection_reason'] %}
+                            <br><span style="color: #DC2626; font-weight: 600;">Rejection Reason: {{ tx['rejection_reason'] }}</span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Pending Decision Actions Form -->
+            {% if tx['status'] == 'PENDING' %}
+                <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid rgba(0,0,0,0.08);">
+                    <form method="POST" action="{{ url_for('admin_transaction_decision', tx_id=tx['transaction_id']) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="form-group">
+                            <label class="form-label" for="rejection_reason" style="font-size: 0.85rem;">
+                                Rejection Reason (Mandatory if rejecting; leave blank for approval)
+                            </label>
+                            <input type="text" id="rejection_reason" name="rejection_reason" class="form-control" placeholder="e.g. Moisture percentage above 17% / Quality inspection mismatch / Weight discrepancy">
+                        </div>
+
+                        <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                            <button type="submit" name="decision" value="APPROVED" class="btn btn-success" style="padding: 10px 24px; font-size: 1rem;" onclick="return confirm('Approve transaction {{ tx['transaction_id'] }}? An official receipt will be generated.');">
+                                ✅ Approve Transaction
+                            </button>
+
+                            <button type="submit" name="decision" value="REJECTED" class="btn btn-danger" style="padding: 10px 24px; font-size: 1rem;" onclick="return confirm('Reject transaction {{ tx['transaction_id'] }}?');">
+                                ❌ Reject Transaction
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Section 2: Payment Settlement Control (Visible to Farmer) -->
+        <div style="padding: 22px; border-radius: var(--border-radius-sm); margin-bottom: 24px;
+            {% if tx['payment_status'] == 'COMPLETED' %}
+                background: #F0FDF4; border: 2px solid #22C55E;
+            {% else %}
+                background: #FFFDF5; border: 2px solid var(--gold-border);
+            {% endif %}">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                <div>
+                    <span style="font-size: 0.82rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted);">
+                        Farmer Payment Settlement Status
+                    </span>
+                    <h3 style="margin: 2px 0 0; font-size: 1.35rem;
+                        {% if tx['payment_status'] == 'COMPLETED' %} color: #15803D;
+                        {% else %} color: #B45309; {% endif %}">
+                        {% if tx['payment_status'] == 'COMPLETED' %}
+                            ✅ Payment Has Been Completed
+                        {% else %}
+                            ⏳ Payment Pending
+                        {% endif %}
+                    </h3>
+                </div>
+
+                <div>
+                    {% if tx['payment_status'] == 'COMPLETED' %}
+                        <span class="badge badge-approved" style="font-size: 0.9rem; padding: 6px 16px;">
+                            Farmer Status: PAID ✅
+                        </span>
+                    {% else %}
+                        <span class="badge badge-pending" style="font-size: 0.9rem; padding: 6px 16px;">
+                            Farmer Status: UNPAID / PENDING ⏳
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if tx['payment_status'] == 'COMPLETED' %}
+                <div style="background: #FFFFFF; border: 1px solid #BBF7D0; border-radius: 6px; padding: 14px 18px; margin-bottom: 14px;">
+                    <p style="margin: 0; color: #166534; font-size: 0.95rem;">
+                        <strong>Payment Completion Timestamp:</strong> {{ tx['payment_timestamp'] }}
+                    </p>
+                    <p style="margin: 6px 0 0; color: #166534; font-size: 0.95rem;">
+                        <strong>Payment Reference / Settlement Details:</strong> {{ tx['payment_notes'] or 'Settled in full via Sri Srinivasa Canvasing' }}
+                    </p>
+                    <div style="margin-top: 8px; font-size: 0.82rem; color: #047857;">
+                        ✓ This status is currently visible to <strong>{{ tx['farmer_name'] }}</strong> on their dashboard, transaction list, details view, and receipt.
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('admin_transaction_payment', tx_id=tx['transaction_id']) }}" onsubmit="return confirm('Reset payment status back to PENDING?');" style="display: inline-block;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="payment_status" value="PENDING">
+                    <button type="submit" class="btn btn-outline btn-sm" style="color: #B45309; border-color: #FCD34D;">
+                        ↩️ Revert Payment Status to Pending
+                    </button>
+                </form>
+            {% else %}
+                <p style="color: #78350F; font-size: 0.92rem; margin-bottom: 14px;">
+                    Once the commission and paddy lot payments have been settled with the farmer, mark it as completed here. <strong>The farmer will immediately see "Payment Completed ✅" on their dashboard and official receipt.</strong>
+                </p>
+
+                <form method="POST" action="{{ url_for('admin_transaction_payment', tx_id=tx['transaction_id']) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="payment_status" value="COMPLETED">
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label class="form-label" for="payment_notes" style="font-size: 0.85rem; color: #92400E;">
+                            Payment Settlement Notes / UTR / Reference No. (Optional)
+                        </label>
+                        <input type="text" id="payment_notes" name="payment_notes" class="form-control" placeholder="e.g. Bank Transfer UTR #9823471029 / Cash Voucher #104 / NEFT RTGS">
+                    </div>
+
+                    <button type="submit" class="btn btn-success" style="padding: 10px 24px; font-size: 1rem; font-weight: 700; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);" onclick="return confirm('Confirm that payment has been completed for transaction {{ tx['transaction_id'] }}?');">
+                        💰 Payment Has Been Completed (Notify Farmer)
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Specifications Breakdown -->
+        <div class="form-grid-2" style="margin-bottom: 24px;">
+            <div style="background: #F8FAFC; padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid #E2E8F0;">
+                <h4 style="color: var(--primary-blue); margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                    👨‍🌾 Farmer Identification
+                </h4>
+                <p><strong>Farmer Name:</strong> {{ tx['farmer_name'] }}</p>
+                <p style="margin-top: 8px;"><strong>Mobile Number:</strong> {{ tx['farmer_mobile'] }}</p>
+                <p style="margin-top: 8px;"><strong>Village:</strong> {{ tx['farmer_village'] }}</p>
+                <p style="margin-top: 8px;"><strong>Aadhaar Number:</strong> {{ mask_aadhaar(tx['farmer_aadhaar']) }}</p>
+            </div>
+
+            <div style="background: #F8FAFC; padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid #E2E8F0;">
+                <h4 style="color: var(--primary-blue); margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                    🌾 Destination Rice Mill
+                </h4>
+                <p><strong>Assigned Mill:</strong><br>
+                    <span style="font-size: 1.05rem; font-weight: 700; color: var(--primary-blue);">
+                        {{ tx['rice_mill_name_snapshot'] or tx['current_mill_name'] or 'Not recorded' }}
+                    </span>
+                    {% if tx['mill_location'] %}<br><small style="color: var(--text-muted);">{{ tx['mill_location'] }}</small>{% endif %}
+                </p>
+
+                <!-- Legacy Transaction Mill Assignment Option -->
+                {% if not tx['rice_mill_id'] and not tx['rice_mill_name_snapshot'] %}
+                    <div style="margin-top: 14px; padding: 12px; background: #FFFBEB; border: 1px dashed var(--gold-primary); border-radius: 6px;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: #92400E;">Historical Record - Assign Rice Mill:</span>
+                        <form method="POST" action="{{ url_for('admin_assign_mill', tx_id=tx['transaction_id']) }}" style="margin-top: 8px; display: flex; gap: 8px;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <select name="rice_mill_id" class="form-select" style="font-size: 0.85rem;" required>
+                                <option value="">Select Mill...</option>
+                                {% for m in mills %}
+                                    <option value="{{ m['id'] }}">{{ m['mill_name'] }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary btn-sm">Assign</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-bottom: 24px;">
+            <div style="background: #F8FAFC; padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid #E2E8F0;">
+                <h4 style="color: var(--primary-blue); margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                    🌾 Paddy Lot Specifics
+                </h4>
+                <p><strong>Paddy Variety:</strong> {{ tx['paddy_type'] }}</p>
+                <p style="margin-top: 8px;"><strong>Total Bags:</strong> <strong>{{ tx['number_of_bags'] }} bags</strong></p>
+                <p style="margin-top: 8px;"><strong>Est. Net Paddy Weight:</strong> ~{{ '{:,.0f}'.format(tx['number_of_bags'] * 75) }} kg (@ 75 kg/bag)</p>
+                <p style="margin-top: 8px;"><strong>Booking Timestamp:</strong> {{ tx['transaction_timestamp'] }}</p>
+            </div>
+
+            <div style="background: #F8FAFC; padding: 20px; border-radius: var(--border-radius-sm); border: 1px solid #E2E8F0;">
+                <h4 style="color: var(--primary-blue); margin-bottom: 12px; border-bottom: 1px solid #E2E8F0; padding-bottom: 6px;">
+                    🚛 Vehicle & Logistics
+                </h4>
+                <p><strong>Vehicle Number:</strong> <code style="font-size: 1.05rem; font-weight: 700;">{{ tx['vehicle_number'] }}</code></p>
+                <p style="margin-top: 8px;"><strong>Recorded Weight:</strong> {{ '{:,.1f}'.format(tx['vehicle_weight_kg']) }} kg</p>
+                <p style="margin-top: 8px;"><strong>Driver Mobile:</strong> {{ tx['driver_mobile'] }}</p>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 16px;">
+            <a href="{{ url_for('admin_transactions') }}" class="btn btn-outline">
+                &larr; Back to Transactions
+            </a>
+            {% if tx['status'] == 'APPROVED' %}
+                <a href="{{ url_for('view_receipt', tx_id=tx['transaction_id']) }}" class="btn btn-primary">
+                    🧾 View Official Receipt &rarr;
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

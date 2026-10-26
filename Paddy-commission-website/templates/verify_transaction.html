@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction Verification - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 20px auto;">
+    <div class="content-card" style="text-align: center; border-top: 4px solid var(--gold-primary);">
+        {% if tx %}
+            <!-- Authentic Verification Found -->
+            <div style="font-size: 3rem; margin-bottom: 8px;">
+                {% if tx['status'] == 'APPROVED' %}✅
+                {% elif tx['status'] == 'REJECTED' %}❌
+                {% else %}⏳{% endif %}
+            </div>
+
+            <h2 class="card-title" style="margin-bottom: 4px;">
+                Transaction Verification
+            </h2>
+
+            <div style="color: var(--gold-hover); font-weight: 700; font-size: 1rem; margin-bottom: 16px; text-transform: uppercase;">
+                {{ business_name }} • Mandapeta, East Godavari District
+            </div>
+
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;">
+                <div style="display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;
+                    {% if tx['status'] == 'APPROVED' %} background: #DCFCE7; color: #166534; border: 1.5px solid #86EFAC;
+                    {% elif tx['status'] == 'REJECTED' %} background: #FEE2E2; color: #991B1B; border: 1.5px solid #FCA5A5;
+                    {% else %} background: #FEF3C7; color: #92400E; border: 1.5px solid #FCD34D; {% endif %}">
+                    Lot Approval: {{ tx['status'] }}
+                </div>
+
+                <div style="display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: 700; font-size: 0.9rem;
+                    {% if tx['payment_status'] == 'COMPLETED' %} background: #D1FAE5; color: #065F46; border: 1.5px solid #6EE7B7;
+                    {% else %} background: #FFFBEB; color: #B45309; border: 1.5px solid #FCD34D; {% endif %}">
+                    Payment Status: {% if tx['payment_status'] == 'COMPLETED' %}Completed ✅{% else %}Pending ⏳{% endif %}
+                </div>
+            </div>
+
+            <!-- Public Non-Sensitive Details Table -->
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: var(--border-radius-md); padding: 20px; text-align: left; margin-bottom: 24px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 0.95rem;">
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">Transaction ID</span>
+                        <div style="font-weight: 700; font-family: monospace; color: var(--primary-blue);">{{ tx['transaction_id'] }}</div>
+                    </div>
+
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">Transaction Date</span>
+                        <div style="font-weight: 600;">{{ tx['transaction_timestamp'][:16] }}</div>
+                    </div>
+
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">Destination Rice Mill</span>
+                        <div style="font-weight: 700; color: var(--primary-blue);">
+                            {{ tx['rice_mill_name_snapshot'] or tx['current_mill_name'] or 'Not recorded' }}
+                        </div>
+                    </div>
+
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">Paddy Variety</span>
+                        <div style="font-weight: 600;">{{ tx['paddy_type'] }}</div>
+                    </div>
+
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">Bag Count</span>
+                        <div style="font-weight: 700;">{{ tx['number_of_bags'] }} bags</div>
+                    </div>
+
+                    <div>
+                        <span style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 600;">Vehicle Registration</span>
+                        <div style="font-family: monospace; font-weight: 700;">{{ tx['vehicle_number'] }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+                🔒 This verification record was confirmed live from the Sri Srinivasa Canvasing database in Mandapeta, East Godavari District. Sensitive personal details (Aadhaar & full credentials) are protected by cryptographic role-based access.
+            </p>
+
+        {% else %}
+            <!-- Unrecognized Transaction ID -->
+            <div style="font-size: 3rem; margin-bottom: 8px;">⚠️</div>
+            <h2 class="card-title" style="color: #DC2626; margin-bottom: 8px;">
+                Unrecognized Transaction ID
+            </h2>
+            <p style="color: var(--text-dark); margin-bottom: 16px;">
+                The identifier <code style="font-weight: bold; background: #FEE2E2; padding: 2px 8px; border-radius: 4px;">{{ query_id }}</code> could not be found in the Sri Srinivasa Canvasing database.
+            </p>
+            <div style="padding: 16px; background: #FFFBEB; border-radius: var(--border-radius-sm); border: 1px solid var(--gold-border); font-size: 0.9rem; color: #92400E; margin-bottom: 24px;">
+                Please ensure you have scanned a genuine receipt generated by Sri Srinivasa Canvasing, Mandapeta, East Godavari. If you believe this is an error, please contact the main office.
+            </div>
+        {% endif %}
+
+        <div style="border-top: 1px solid #E2E8F0; padding-top: 18px;">
+            <a href="{{ url_for('home') }}" class="btn btn-outline btn-sm">
+                &larr; Return to Sri Srinivasa Canvasing Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

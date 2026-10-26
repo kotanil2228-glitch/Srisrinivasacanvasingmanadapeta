@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Rice Mills - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div class="content-card">
+    <div class="card-header-styled">
+        <div>
+            <h2 class="card-title">🏭 Manage Authorized Rice Mills</h2>
+            <div style="color: var(--text-muted); font-size: 0.95rem; margin-top: 4px;">
+                Maintain active and inactive partner rice mills across Mandapeta & Godavari belt.
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ url_for('add_rice_mill') }}" class="btn btn-primary btn-sm">
+                + Add New Rice Mill
+            </a>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline btn-sm">
+                &larr; Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{{ url_for('manage_rice_mills') }}" style="background: rgba(248, 250, 252, 0.9); border: 1px solid #E2E8F0; padding: 16px; border-radius: var(--border-radius-md); margin-bottom: 24px; display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 250px;">
+            <label class="form-label" style="font-size: 0.85rem;">Search Rice Mills by Name or Location</label>
+            <input type="text" name="q" class="form-control" placeholder="Search Mandapeta, Alamuru, mill name..." value="{{ search_q or '' }}">
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button type="submit" class="btn btn-primary btn-sm">
+                🔍 Search Mills
+            </button>
+            {% if search_q %}
+                <a href="{{ url_for('manage_rice_mills') }}" class="btn btn-outline btn-sm">
+                    Reset
+                </a>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- Rice Mills Table -->
+    {% if mills %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Rice Mill Name</th>
+                        <th>Location / Address</th>
+                        <th>Status</th>
+                        <th>Created Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mill in mills %}
+                        <tr>
+                            <td>#{{ mill['id'] }}</td>
+                            <td>
+                                <strong style="color: var(--primary-blue); font-size: 0.98rem;">{{ mill['mill_name'] }}</strong>
+                            </td>
+                            <td>{{ mill['location'] or 'Location not specified' }}</td>
+                            <td>
+                                {% if mill['is_active'] %}
+                                    <span class="badge badge-approved">Active</span>
+                                {% else %}
+                                    <span class="badge badge-inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ mill['created_at'][:10] if mill['created_at'] else 'N/A' }}</td>
+                            <td>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <a href="{{ url_for('edit_rice_mill', mill_id=mill['id']) }}" class="btn btn-outline btn-sm">
+                                        ✏️ Edit
+                                    </a>
+
+                                    <form method="POST" action="{{ url_for('toggle_rice_mill', mill_id=mill['id']) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to {{ 'deactivate' if mill['is_active'] else 'activate' }} {{ mill['mill_name'] }}?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        {% if mill['is_active'] %}
+                                            <button type="submit" class="btn btn-sm" style="background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5;">
+                                                Deactivate
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="btn btn-sm" style="background: #DCFCE7; color: #166534; border: 1px solid #86EFAC;">
+                                                Activate
+                                            </button>
+                                        {% endif %}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px 20px; background: #FFFFFF; border-radius: var(--border-radius-md); border: 1px dashed #CBD5E1;">
+            <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 14px;">
+                {% if search_q %}
+                    No rice mills found matching "<strong>{{ search_q }}</strong>".
+                {% else %}
+                    No rice mills registered yet.
+                {% endif %}
+            </p>
+            <a href="{{ url_for('add_rice_mill') }}" class="btn btn-primary">
+                + Add First Rice Mill
+            </a>
+        </div>
+    {% endif %}
+
+    <div style="margin-top: 24px; padding: 14px 18px; background: #FFFBEB; border-radius: var(--border-radius-sm); border-left: 4px solid var(--gold-primary); font-size: 0.88rem; color: #92400E;">
+        ℹ️ <strong>System Rule:</strong> Inactive mills are automatically hidden from farmer transaction booking forms. Historical transactions linked to deactivated mills remain fully preserved for audit integrity.
+    </div>
+</div>
+{% endblock %}

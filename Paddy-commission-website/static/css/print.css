@@ -1,0 +1,235 @@
+* {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+/*
+==================================================
+SRI SRINIVASA CANVASING - Mandapeta, Andhra Pradesh
+A4 Print-Optimized Stylesheet for Receipts & Official Invoices
+==================================================
+*/
+
+@page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+}
+
+body {
+    background: #FFFFFF !important;
+    color: #111827 !important;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 11pt;
+    line-height: 1.4;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Hide all navigation, controls, buttons, alerts, and footers in print */
+.no-print,
+.navbar,
+.header-top,
+.footer,
+.btn,
+.flash-container,
+.nav-links,
+.card-header-styled .btn,
+.alert {
+    display: none !important;
+}
+
+.main-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.content-card {
+    background: #FFFFFF !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* ---------------- OFFICIAL RECEIPT CONTAINER ---------------- */
+
+.receipt-document {
+    border: 2px solid #0B1B3D;
+    padding: 24px;
+    position: relative;
+    background: #FFFFFF;
+    page-break-inside: avoid;
+}
+
+/* Lord Balaji Header Portrait & Watermark for official authenticity */
+.receipt-balaji-frame {
+    display: block !important;
+    text-align: center !important;
+    margin: 4px auto 10px auto !important;
+}
+
+.receipt-balaji-photo {
+    height: 72px !important;
+    width: auto !important;
+    max-width: 130px !important;
+    object-fit: contain !important;
+    border: 1.5px solid #D4AF37 !important;
+    border-radius: 6px !important;
+    display: inline-block !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+}
+
+.receipt-watermark {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 380px !important;
+    max-width: 75% !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    text-align: center !important;
+    overflow: hidden !important;
+}
+
+.receipt-watermark img {
+    width: 100% !important;
+    height: auto !important;
+    opacity: 0.08 !important;
+    filter: grayscale(10%) !important;
+    display: block !important;
+    margin: 0 auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+.receipt-content-layer {
+    position: relative;
+    z-index: 1;
+}
+
+.receipt-header {
+    text-align: center;
+    border-bottom: 2px solid #D4AF37;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.receipt-business-name {
+    font-family: 'Georgia', serif;
+    font-size: 20pt;
+    font-weight: bold;
+    color: #0B1B3D;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 0;
+}
+
+.receipt-business-subtitle {
+    font-size: 10pt;
+    color: #4B5563;
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+.receipt-title-badge {
+    display: inline-block;
+    font-size: 11pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #0B1B3D;
+    background: #FDF6B2;
+    padding: 3px 18px;
+    border: 1px solid #D4AF37;
+    border-radius: 4px;
+    margin-top: 8px;
+}
+
+/* ---------------- META & SPECS GRID ---------------- */
+
+.receipt-meta-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 18px;
+    border-bottom: 1px dashed #D1D5DB;
+    padding-bottom: 12px;
+}
+
+.meta-group {
+    font-size: 10pt;
+}
+
+.meta-group strong {
+    color: #0B1B3D;
+}
+
+/* ---------------- TABLE IN RECEIPT ---------------- */
+
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+.receipt-table th {
+    background-color: #F3F4F6 !important;
+    color: #111827 !important;
+    border: 1px solid #D1D5DB;
+    padding: 8px 10px;
+    font-size: 10pt;
+    text-align: left;
+    font-weight: bold;
+}
+
+.receipt-table td {
+    border: 1px solid #E5E7EB;
+    padding: 8px 10px;
+    font-size: 10pt;
+    color: #1F2937;
+}
+
+/* ---------------- QR CODE & SIGNATURE FOOTER ---------------- */
+
+.receipt-footer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #E5E7EB;
+}
+
+.qr-section {
+    text-align: center;
+}
+
+.qr-section img {
+    width: 90px;
+    height: 90px;
+    border: 1px solid #D1D5DB;
+    padding: 2px;
+}
+
+.qr-caption {
+    font-size: 8pt;
+    color: #6B7280;
+    margin-top: 4px;
+}
+
+.signature-box {
+    text-align: right;
+    min-width: 220px;
+}
+
+.signature-line {
+    border-top: 1px solid #000;
+    margin-top: 45px;
+    padding-top: 4px;
+    font-weight: bold;
+    font-size: 9.5pt;
+}

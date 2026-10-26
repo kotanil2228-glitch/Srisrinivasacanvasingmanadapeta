@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Administrator Login - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 480px; margin: 30px auto;">
+    <div class="content-card" style="border-top: 4px solid var(--gold-primary);">
+        <div class="card-header-styled" style="text-align: center; display: block;">
+            <div style="font-size: 2.2rem; margin-bottom: 8px;">🛡️</div>
+            <h2 class="card-title" style="margin-bottom: 4px;">Administrator Portal</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Authorized personnel authentication only.
+            </p>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label class="form-label" for="username">Admin Username</label>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" value="{{ username or '' }}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter administrative password" required>
+            </div>
+
+            <div style="margin-top: 14px;">
+                <button type="submit" class="btn btn-primary btn-block" style="padding: 12px; font-size: 1.05rem;">
+                    🔐 Sign In to Admin Console
+                </button>
+            </div>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px; padding-top: 16px; border-top: 1px solid #E2E8F0; font-size: 0.85rem; color: var(--text-muted);">
+            <div>🔒 Public registration is disabled for administrator accounts.</div>
+            <div style="margin-top: 8px;">
+                <a href="{{ url_for('login') }}" style="color: var(--gold-hover); font-weight: 600;">
+                    &larr; Switch to Farmer Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

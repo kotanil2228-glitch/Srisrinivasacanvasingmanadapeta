@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}New Paddy Transaction - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="content-card">
+        <div class="card-header-styled">
+            <div>
+                <h2 class="card-title">🌾 New Paddy Booking / Transaction</h2>
+                <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+                    Enter vehicle dispatch and paddy lot details for Sri Srinivasa Canvasing, Mandapeta.
+                </div>
+            </div>
+            <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline btn-sm">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+
+        {% if not active_mills %}
+            <div class="alert alert-warning" style="display: block;">
+                <strong>Notice:</strong> There are currently no active rice mills registered in the system.
+                Please contact the Sri Srinivasa Canvasing main office in Mandapeta to register and activate mills before booking lots.
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('new_transaction') }}" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <!-- Farmer Account Info (Read-Only Credentials) -->
+            <div style="background: rgba(241, 245, 249, 0.85); border-radius: var(--border-radius-sm); padding: 16px; margin-bottom: 22px; border: 1px solid #E2E8F0;">
+                <h4 style="color: var(--primary-blue); margin-bottom: 10px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    1. Authenticated Farmer Profile
+                </h4>
+                <div class="form-grid-3">
+                    <div>
+                        <label class="form-label" style="font-size: 0.8rem;">Farmer Name</label>
+                        <input type="text" class="form-control" value="{{ farmer['name'] }}" readonly style="background: #E2E8F0; font-weight: 600;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.8rem;">Farmer Mobile</label>
+                        <input type="text" class="form-control" value="{{ farmer['mobile'] }}" readonly style="background: #E2E8F0; font-weight: 600;">
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.8rem;">Village / Location *</label>
+                        <input type="text" name="village" class="form-control" value="{{ form_data.get('village', farmer['village']) }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rice Mill Selection (Mandatory Database-backed Dropdown) -->
+            <div class="form-group" style="background: #FFFBEB; padding: 18px; border-radius: var(--border-radius-sm); border: 1.5px solid var(--gold-border);">
+                <label class="form-label" for="rice_mill_id" style="font-size: 1rem; color: #92400E;">
+                    2. Select Destination Rice Mill *
+                </label>
+                <select name="rice_mill_id" id="rice_mill_id" class="form-select" required {% if not active_mills %}disabled{% endif %}>
+                    <option value="">-- Choose from active authorized rice mills in Mandapeta --</option>
+                    {% for mill in active_mills %}
+                        <option value="{{ mill['id'] }}" {% if form_data.get('rice_mill_id')|string == mill['id']|string %}selected{% endif %}>
+                            {{ mill['mill_name'] }} {% if mill['location'] %}({{ mill['location'] }}){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div class="form-text-muted" style="color: #B45309;">
+                    ✓ Only active mills approved by Sri Srinivasa Canvasing are displayed. Manual text entry is prohibited.
+                </div>
+            </div>
+
+            <!-- Paddy Lot & Variety Specifications -->
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label class="form-label" for="paddy_type">3. Paddy Variety / Type *</label>
+                    <input list="paddy_varieties" name="paddy_type" id="paddy_type" class="form-control" placeholder="Select or type variety (e.g. BPT 5204)" value="{{ form_data.get('paddy_type', '') }}" required>
+                    <datalist id="paddy_varieties">
+                        <option value="BPT 5204 (Samba Mahsuri)">
+                        <option value="MTU 1010 (Cottondora Sannalu)">
+                        <option value="MTU 1061 (Indra)">
+                        <option value="MTU 1064 (Amara)">
+                        <option value="Swarna (MTU 7029)">
+                        <option value="RNR 15048 (Telangana Sona)">
+                        <option value="Super Fine Raw">
+                        <option value="Common Boiled Paddy">
+                    </datalist>
+                    <div class="form-text-muted">Common Godavari delta varieties available in list.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="number_of_bags">4. Number of Bags *</label>
+                    <input type="number" name="number_of_bags" id="number_of_bags" class="form-control" placeholder="e.g. 350" min="1" step="1" value="{{ form_data.get('number_of_bags', '') }}" required>
+                    <div id="weight_estimate_hint" class="form-text-muted" style="color: var(--primary-blue);"></div>
+                </div>
+            </div>
+
+            <!-- Vehicle & Weight Specifications -->
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label class="form-label" for="vehicle_number">5. Vehicle Number *</label>
+                    <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" placeholder="e.g. AP 31 TX 1234" value="{{ form_data.get('vehicle_number', '') }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="vehicle_weight_kg">6. Vehicle Weight (in Kilograms) *</label>
+                    <input type="number" name="vehicle_weight_kg" id="vehicle_weight_kg" class="form-control" placeholder="e.g. 26250" min="1" step="0.5" value="{{ form_data.get('vehicle_weight_kg', '') }}" required>
+                    <div class="form-text-muted">Total weight recorded at weighbridge.</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="driver_mobile">7. Driver Mobile Number *</label>
+                    <input type="tel" name="driver_mobile" id="driver_mobile" class="form-control" placeholder="10-digit driver number" maxlength="10" value="{{ form_data.get('driver_mobile', '') }}" required>
+                </div>
+            </div>
+
+            <!-- Transaction Generation Note -->
+            <div style="background: #F8FAFC; border-left: 4px solid var(--primary-blue); padding: 12px 16px; margin: 20px 0; border-radius: var(--border-radius-sm); font-size: 0.88rem; color: var(--text-muted);">
+                ℹ️ <strong>System Note:</strong> A unique readable Transaction ID in the format <code>SSC-YYYYMMDD-XXXXXXXX</code> will be automatically assigned upon submission. Status will start as <strong>PENDING</strong> for administrator verification.
+            </div>
+
+            <div style="display: flex; gap: 14px; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="flex: 2; padding: 12px; font-size: 1.05rem;" {% if not active_mills %}disabled{% endif %}>
+                    🌾 Submit Paddy Transaction
+                </button>
+                <a href="{{ url_for('farmer_dashboard') }}" class="btn btn-outline" style="flex: 1;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

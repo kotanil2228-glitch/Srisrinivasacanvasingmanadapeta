@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Official Receipt {{ tx['transaction_id'] }} - SRI SRINIVASA CANVASING{% endblock %}
+
+{% block content %}
+<div style="max-width: 820px; margin: 0 auto;">
+    <!-- Screen Actions Toolbar (Hidden during print) -->
+    <div class="no-print" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div>
+            {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin_transaction_details', tx_id=tx['transaction_id']) }}" class="btn btn-outline btn-sm">
+                    &larr; Back to Admin Audit
+                </a>
+            {% else %}
+                <a href="{{ url_for('farmer_transactions') }}" class="btn btn-outline btn-sm">
+                    &larr; Back to My Transactions
+                </a>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="button" class="btn btn-primary btn-print" style="box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">
+                🖨️ Print Receipt / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Official A4 Receipt Document Layer -->
+    <div class="content-card receipt-document" style="padding: 36px 40px; border: 2.5px solid var(--primary-blue); position: relative; background: #FFFFFF;">
+        <!-- Watermark -->
+        <div class="receipt-watermark">
+            <img src="{{ url_for('static', filename='balaji.jpg') }}" alt="Lord Venkateswara Watermark">
+        </div>
+
+        <div class="receipt-content-layer">
+            <!-- Official Header -->
+            <div class="receipt-header">
+                <div class="receipt-blessing-text" style="font-size: 0.95rem; font-weight: 700; color: var(--gold-hover); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">
+                    ॥ శ్రీ వేంకటేశ్వర ప్రసన్నః ॥
+                </div>
+
+                <!-- Lord Balaji Sacred Portrait (Prominently printed) -->
+                <div class="receipt-balaji-frame">
+                    <img src="{{ url_for('static', filename='balaji.jpg') }}" 
+                         alt="Lord Sri Venkateswara Swamy - Balaji" 
+                         class="receipt-balaji-photo">
+                </div>
+
+                <h1 class="receipt-business-name">{{ business_name }}</h1>
+                <div class="receipt-business-subtitle">
+                    Paddy Canvasing & Commission Agents | Mandapeta, East Godavari District
+                </div>
+                <div style="font-size: 0.82rem; color: #64748B; margin-top: 2px;">
+                    {{ business_address }}
+                </div>
+                <div>
+                    <span class="receipt-title-badge">OFFICIAL PADDY CANVASING MEMO / RECEIPT</span>
+                </div>
+            </div>
+
+            <!-- Meta Info Grid -->
+            <div class="receipt-meta-grid">
+                <div class="meta-group">
+                    <div><strong>Transaction ID:</strong> <span style="font-family: monospace; font-size: 1.05rem; font-weight: bold; color: #0B1B3D;">{{ tx['transaction_id'] }}</span></div>
+                    <div style="margin-top: 4px;"><strong>Booking Date:</strong> {{ tx['transaction_timestamp'] }}</div>
+                    <div style="margin-top: 4px;"><strong>Approval Date:</strong> {{ tx['decision_timestamp'] }}</div>
+                </div>
+
+                <div class="meta-group" style="text-align: right;">
+                    <div><strong>Approval Status:</strong> <span class="badge badge-approved" style="font-size: 0.85rem;">{{ tx['status'] }}</span></div>
+                    <div style="margin-top: 4px;">
+                        <strong>Payment Status:</strong>
+                        {% if tx['payment_status'] == 'COMPLETED' %}
+                            <span style="color: #166534; font-weight: bold;">COMPLETED ✅</span>
+                        {% else %}
+                            <span style="color: #92400E; font-weight: bold;">PENDING ⏳</span>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top: 4px;"><strong>District:</strong> East Godavari, AP</div>
+                </div>
+            </div>
+
+            <!-- Farmer & Mill Identification Table -->
+            <table class="receipt-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th style="width: 50%;">FARMER DETAILS</th>
+                        <th style="width: 50%;">DESTINATION RICE MILL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong style="font-size: 1.05rem; color: #0B1B3D;">{{ tx['farmer_name'] }}</strong><br>
+                            Village: <strong>{{ tx['farmer_village'] }}</strong>, East Godavari<br>
+                            Contact: {{ mask_mobile(tx['farmer_mobile']) }}
+                        </td>
+                        <td>
+                            <strong style="font-size: 1.05rem; color: #0B1B3D;">
+                                {{ tx['rice_mill_name_snapshot'] or tx['current_mill_name'] or 'Not recorded' }}
+                            </strong><br>
+                            Location: {{ tx['mill_location'] or 'Mandapeta, East Godavari' }}<br>
+                            Canvasing Code: SSC-MDA-{{ tx['rice_mill_id'] or 'HIST' }}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Paddy & Dispatch Specifications Table -->
+            <table class="receipt-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>PADDY VARIETY / TYPE</th>
+                        <th style="text-align: center;">NUMBER OF BAGS</th>
+                        <th style="text-align: center;">VEHICLE NUMBER</th>
+                        <th style="text-align: right;">RECORDED WEIGHT (KG)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong>{{ tx['paddy_type'] }}</strong><br>
+                            <small style="color: #64748B;">Standard Andhra Paddy Lot</small>
+                        </td>
+                        <td style="text-align: center; font-size: 1.1rem; font-weight: bold;">
+                            {{ tx['number_of_bags'] }}
+                        </td>
+                        <td style="text-align: center; font-family: monospace; font-size: 1rem; font-weight: bold;">
+                            {{ tx['vehicle_number'] }}
+                        </td>
+                        <td style="text-align: right; font-size: 1.05rem; font-weight: bold;">
+                            {{ '{:,.1f}'.format(tx['vehicle_weight_kg']) }} kg
+                        </td>
+                    </tr>
+                    <tr style="background: #F8FAFC;">
+                        <td colspan="2">
+                            <strong>Driver Contact:</strong> {{ mask_mobile(tx['driver_mobile']) }}
+                        </td>
+                        <td colspan="2" style="text-align: right;">
+                            <strong>Approx. Net Paddy Weight:</strong> ~{{ '{:,.0f}'.format(tx['number_of_bags'] * 75) }} kg
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Payment Settlement Confirmation Banner in Receipt -->
+            <div style="background: #F8FAFC; border: 1px dashed #CBD5E1; padding: 10px 14px; border-radius: 4px; margin-bottom: 22px; font-size: 9.5pt;">
+                <strong>Payment Settlement:</strong>
+                {% if tx['payment_status'] == 'COMPLETED' %}
+                    <span style="color: #166534; font-weight: bold;">Payment Completed ✅ (Settled on {{ tx['payment_timestamp'][:10] }})</span>
+                    {% if tx['payment_notes'] %} — <small>{{ tx['payment_notes'] }}</small>{% endif %}
+                {% else %}
+                    <span style="color: #B45309; font-weight: bold;">Payment Settlement Pending ⏳</span> (Lot approved; commission & disbursement under reconciliation)
+                {% endif %}
+            </div>
+
+            <!-- QR Code & Official Signatures Row -->
+            <div class="receipt-footer-row">
+                <div class="qr-section">
+                    <img src="{{ qr_data_uri }}" alt="QR Code for Transaction Verification" width="92" height="92">
+                    <div class="qr-caption">Scan to Verify Authenticity</div>
+                    <div style="font-size: 0.72rem; color: #94A3B8; margin-top: 2px;">
+                        <a href="{{ verify_url }}" target="_blank" style="color: #64748B; text-decoration: underline;">
+                            {{ tx['transaction_id'] }}
+                        </a>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.78rem; color: #64748B; max-width: 300px; text-align: center;">
+                    <em>This is an official computer-generated transaction memo issued by Sri Srinivasa Canvasing, Mandapeta, East Godavari. All weights and lots subject to final mill receiver weighbridge slip.</em>
+                </div>
+
+                <div class="signature-box">
+                    <div style="font-size: 0.85rem; color: #0B1B3D; font-weight: bold; margin-bottom: 40px;">
+                        For SRI SRINIVASA CANVASING
+                    </div>
+                    <div class="signature-line">
+                        Authorized Signatory / Canvasser
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
